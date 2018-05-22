@@ -70,3 +70,18 @@ bash train_my_net.sh
 ```
 
 The terminal should show output as caffe first initializes the solver according to `my_solver.prototxt` and then initializes the net according to `my_net.prototxt`.  Once initialized, it will go through the stochastic gradient descent optimization process.  Note the learning rate goes down throughout the optimization process.  Hopefully the loss goes down as well.
+
+The last few lines of my output are:
+```
+I0522 11:52:02.485299  7754 solver.cpp:468] Snapshotting to binary proto file snapshots/my_net_iter_10000.caffemodel
+I0522 11:52:02.490921  7754 sgd_solver.cpp:280] Snapshotting solver state to binary proto file snapshots/my_net_iter_10000.solverstate
+I0522 11:52:02.494045  7754 solver.cpp:331] Iteration 10000, loss = 0.00245183
+I0522 11:52:02.494065  7754 solver.cpp:351] Iteration 10000, Testing net (#0)
+I0522 11:52:02.563616  7774 data_layer.cpp:73] Restarting data prefetching from start.
+I0522 11:52:02.565438  7754 solver.cpp:418]     Test net output #0: accuracy = 0.9905
+I0522 11:52:02.565479  7754 solver.cpp:418]     Test net output #1: loss = 0.0294303 (* 1 = 0.0294303 loss)
+I0522 11:52:02.565484  7754 solver.cpp:336] Optimization Done.
+I0522 11:52:02.565486  7754 caffe.cpp:250] Optimization Done.
+```
+
+So I got a training loss of ~.002, a test loss of ~.029, and a test accuracy of ~99% after 10000 iterations.
