@@ -57,10 +57,9 @@ Currently, we have two fully connected layers at the end of our network.  Let's 
 
 Currently the first inner product layer has an output size of 500 and the next two have output sized of 10. Let's change the second layer ("ip2") to have an output size of 70.
 
-
-
 <details>
   <summary>The changes we have made result in:</summary><p>
+  
 ```
 .
 .
@@ -158,5 +157,195 @@ layer {
   top: "loss"
 }
 ```
-p>
+</p>
 </details>
+
+To verify that you understand the structure of your net, you can now use draw_net on this updated `my_net.prototxt` file.
+```
+draw_net my_net.prototxt my_net.png
+xdg-open my_net.png
+```
+
+Note: you can also use this as a syntax check for your network definition, if you have an error, the draw_net script will let you know.
+
+At this point, we can retrain the network with the same script as before:
+```bash
+bash train_my_net.sh
+```
+and the output is (running a few separate trials):
+```
+# First trial
+I0522 15:29:16.506413 14020 solver.cpp:418]     Test net output #0: accuracy = 0.9908
+I0522 15:29:16.506433 14020 solver.cpp:418]     Test net output #1: loss = 0.0285257
+
+# Second trial
+I0522 15:32:33.928989 14171 solver.cpp:418]     Test net output #0: accuracy = 0.991
+I0522 15:32:33.929024 14171 solver.cpp:418]     Test net output #1: loss = 0.0273072
+
+# Third trial
+I0522 15:34:00.773653 14225 solver.cpp:418]     Test net output #0: accuracy = 0.9903
+I0522 15:34:00.773671 14225 solver.cpp:418]     Test net output #1: loss = 0.0298559
+```
+
+It seems unlikely that this additional layer provided any benefit in this case, but at least we didn't hard the network's performance.
+
+#### Removing Layers
+
+Just to see how important some layers may be, we could try removing them.  Let's reduce the network so it only has a single inner product layer.  We will experiment to see if having a ReLU layer after the inner product helps or not.
+
+<details>
+  <summary>With ReLU</summary><p>
+  
+```
+name: "LeNet"
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "data/mnist_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "data/mnist_test_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip1"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip1"
+  bottom: "label"
+  top: "loss"
+}
+```
+</p>
+</details>
+
+Without ReLU: simply delete lines 125-130 containing the definition for the layer "relu1" (no connections need to be modified because ReLUs happen in place)
