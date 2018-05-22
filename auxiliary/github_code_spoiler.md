@@ -9,8 +9,7 @@ Use this code:
 ```
 code
 ```
-</p>
-</details><br/>
+</p></details><br/>
 ````
 
 to generate:
@@ -21,7 +20,6 @@ to generate:
 ```
 code
 ```
-</p>
-</details><br/>
+</p></details><br/>
 
 Viola
