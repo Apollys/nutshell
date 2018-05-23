@@ -345,7 +345,33 @@ layer {
   top: "loss"
 }
 ```
-</p>
-</details>
+</p></details><br/>  
 
-Without ReLU: simply delete lines 125-130 containing the definition for the layer "relu1" (no connections need to be modified because ReLUs happen in place)
+<details>
+  <summary>Without ReLU</summary><p>
+  
+Starting from the above "With ReLU" network, simply delete lines 125-130 containing the definition for the layer "relu1" (no connections need to be modified because ReLUs happen in place).
+</p></details><br/>
+
+Results:
+```bash
+# With ReLU, 2 trials
+
+I0522 15:42:22.223109 14546 solver.cpp:418]     Test net output #0: accuracy = 0.9861
+I0522 15:42:22.223129 14546 solver.cpp:418]     Test net output #1: loss = 0.0419027
+
+I0522 16:13:16.470072 15596 solver.cpp:418]     Test net output #0: accuracy = 0.987
+I0522 16:13:16.470095 15596 solver.cpp:418]     Test net output #1: loss = 0.0406641
+
+
+# Without ReLU, 2 trials
+
+I0522 16:11:14.923564 15474 solver.cpp:418]     Test net output #0: accuracy = 0.9871
+I0522 16:11:14.923583 15474 solver.cpp:418]     Test net output #1: loss = 0.0406223
+
+I0522 16:11:56.335055 15534 solver.cpp:418]     Test net output #0: accuracy = 0.9865
+I0522 16:11:56.335074 15534 solver.cpp:418]     Test net output #1: loss = 0.0432569
+```
+
+It looks like that ReLU layer may not be doing much.  You may wish to consider why this would be the case.
+
